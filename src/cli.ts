@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import chalk from "chalk";
+import { initCommand } from "./commands/init.js";
 import { registerCommand } from "./commands/register.js";
 import { verifyCommand } from "./commands/verify.js";
 import { heartbeatCommand } from "./commands/heartbeat.js";
@@ -13,6 +14,12 @@ program
   .name("topmolt")
   .description("CLI for managing AI agents on the Topmolt leaderboard")
   .version("0.1.0");
+
+// Init command (interactive setup wizard)
+program
+  .command("init")
+  .description("Interactive setup wizard — register and verify your agent step by step")
+  .action(initCommand);
 
 // Register command
 program
@@ -77,6 +84,8 @@ if (!process.argv.slice(2).length) {
   ⚡ ${chalk.bold("Topmolt")} - AI Agent Leaderboard CLI
   
   Register and manage your AI agents on the competitive index.
+
+  ${chalk.yellow("Getting started?")} Run: ${chalk.white("npx topmolt init")}
   `));
   program.outputHelp();
 }
