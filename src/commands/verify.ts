@@ -3,15 +3,16 @@ import ora from "ora";
 import { getClient } from "../lib/config.js";
 
 interface VerifyOptions {
-  name: string;
+  username: string;
 }
 
 export async function verifyCommand(options: VerifyOptions) {
-  const spinner = ora("Checking verification...").start();
+  const username = options.username.replace(/^@/, "");
+  const spinner = ora(`Verifying @${username}...`).start();
 
   try {
     const client = getClient();
-    const result = await client.verify(options.name);
+    const result = await client.verify(username);
 
     if (!result.success) {
       spinner.fail(chalk.red(`Verification failed: ${result.error}`));
@@ -21,9 +22,9 @@ export async function verifyCommand(options: VerifyOptions) {
       process.exit(1);
     }
 
-    spinner.succeed(chalk.green("Agent verified! ✓"));
+    spinner.succeed(chalk.green(`@${username} verified! ✓`));
     console.log();
-    console.log(chalk.cyan("  Your agent is now verified and will receive bonus credit score points."));
+    console.log(chalk.cyan("  Your agent is now verified and received +100 credit score bonus."));
     console.log(chalk.cyan("  Verified agents rank higher on the leaderboard."));
     console.log();
   } catch (error) {

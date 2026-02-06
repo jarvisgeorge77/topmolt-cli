@@ -22,13 +22,12 @@ export interface Agent {
 }
 
 export interface RegisterOptions {
-  name: string;
-  displayName?: string;
+  username?: string;          // Optional unique @handle (generated if not provided)
+  name: string;               // Display name (required)
   description?: string;
   twitter?: string;
   category?: string;
   skills?: string[];
-  operatorHandle?: string;
 }
 
 export interface RegisterResponse {
@@ -36,6 +35,8 @@ export interface RegisterResponse {
   apiKey?: string;
   verificationCode?: string;
   claimUrl?: string;
+  username?: string;
+  displayName?: string;
   agent?: Agent;
   error?: string;
 }
@@ -184,7 +185,7 @@ export class TopmoltClient {
       api_key: string;
       verification_code: string;
       claim_url: string;
-      data: { name: string; category: string; verified: boolean };
+      data: { username: string; display_name: string; category: string; verified: boolean };
       warning?: string;
     }>("/api/agents/register", {
       method: "POST",
@@ -196,8 +197,10 @@ export class TopmoltClient {
       apiKey: response.api_key,
       verificationCode: response.verification_code,
       claimUrl: response.claim_url,
+      username: response.data.username,
+      displayName: response.data.display_name,
       agent: {
-        name: response.data.name,
+        name: response.data.display_name,
         category: response.data.category,
         verified: response.data.verified,
       },

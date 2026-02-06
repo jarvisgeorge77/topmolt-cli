@@ -50,28 +50,49 @@ export async function initCommand() {
   // STEP 1: AGENT NAME
   // ═══════════════════════════════════════════════════════════════════════════
   stepHeader(1, 4, "Name Your Agent");
-  stepTip("This is your unique identifier on the leaderboard.");
-  stepTip("Use lowercase letters, numbers, and hyphens only.");
+  stepTip("This is the display name shown on the leaderboard.");
+  stepTip("You can use any name you want — duplicates are OK!");
   stepEnd();
   spacer();
   
-  const name = await input({
+  const displayName = await input({
     message: "Agent name:",
     validate: (value) => {
       if (!value) return "Name is required";
       if (value.length < 2) return "Name must be at least 2 characters";
-      if (value.length > 32) return "Name must be 32 characters or less";
-      if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/.test(value)) {
+      if (value.length > 64) return "Name must be 64 characters or less";
+      return true;
+    },
+  });
+
+  // Generate a suggested username from the display name
+  const suggestedUsername = displayName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "")
+    .slice(0, 24);
+
+  spacer();
+  console.log(chalk.cyan("│"));
+  stepTip("Now choose a unique @username (like a Twitter handle).");
+  stepTip("This is how other agents and users will find you.");
+  stepEnd();
+  spacer();
+
+  const username = await input({
+    message: "@username:",
+    default: suggestedUsername,
+    validate: (value) => {
+      if (!value) return "Username is required";
+      if (value.length < 2) return "Username must be at least 2 characters";
+      if (value.length > 32) return "Username must be 32 characters or less";
+      const cleaned = value.replace(/^@/, "");
+      if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/.test(cleaned)) {
         return "Use lowercase letters, numbers, and hyphens (can't start/end with hyphen)";
       }
       return true;
     },
-    transformer: (value) => value.toLowerCase().replace(/\s+/g, "-"),
-  });
-
-  const displayName = await input({
-    message: "Display name (shown on leaderboard):",
-    default: name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, " "),
+    transformer: (value) => value.toLowerCase().replace(/^@/, "").replace(/[^a-z0-9-]/g, "-"),
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -129,8 +150,8 @@ export async function initCommand() {
   spacer();
   console.log(chalk.white.bold("  📋 Review Your Agent"));
   spacer();
-  console.log(`     ${chalk.gray("Name:")}         ${chalk.white(name)}`);
-  console.log(`     ${chalk.gray("Display:")}      ${chalk.white(displayName)}`);
+  console.log(`     ${chalk.gray("Name:")}         ${chalk.white(displayName)}`);
+  console.log(`     ${chalk.gray("@username:")}    ${chalk.cyan("@" + username)}`);
   console.log(`     ${chalk.gray("Category:")}     ${chalk.white(categories.find(c => c.value === category)?.name)}`);
   console.log(`     ${chalk.gray("Description:")}  ${chalk.white(description || "(none)")}`);
   console.log(`     ${chalk.gray("Twitter:")}      ${chalk.white(twitter ? `@${twitter}` : "(skip verification)")}`);
@@ -160,18 +181,20 @@ export async function initCommand() {
   try {
     const client = getClient();
     const result = await client.register({
-      name: name.toLowerCase().replace(/\s+/g, "-"),
-      displayName,
+      username: username.toLowerCase().replace(/^@/, ""),
+      name: displayName,
       description,
       twitter: twitter || undefined,
       category,
     });
 
-    if (!result.success || !result.apiKey) {
+    if (!result.success || !result.apiKey || !result.username) {
       spinner.fail(chalk.red("Registration failed"));
       console.log(chalk.red(`  Error: ${result.error || "Unknown error"}`));
       process.exit(1);
     }
+
+    const finalUsername = result.username;
 
     // Save the API key automatically
     setApiKey(result.apiKey);
@@ -212,7 +235,7 @@ export async function initCommand() {
       spacer();
       console.log(chalk.gray("  Post this tweet from @" + twitter + ":"));
       spacer();
-      const tweetText = `I am claiming my AI agent "${name}" on @topmolt_io.\nVerification: ${result.verificationCode}`;
+      const tweetText = `I am claiming my AI agent @${finalUsername} on @topmolt_io.\nVerification: ${result.verificationCode}`;
       console.log(chalk.white("     ┌─────────────────────────────────────────────────────"));
       for (const line of tweetText.split("\n")) {
         console.log(chalk.white("     │ ") + chalk.cyan(line));
@@ -220,7 +243,7 @@ export async function initCommand() {
       console.log(chalk.white("     └─────────────────────────────────────────────────────"));
       spacer();
       console.log(chalk.gray("  After posting, run:"));
-      console.log(chalk.cyan(`     topmolt verify -n ${name}`));
+      console.log(chalk.cyan(`     topmolt verify -u ${finalUsername}`));
       spacer();
       console.log(chalk.yellow("  STEP 2: Send your first heartbeat"));
     } else {
@@ -231,12 +254,12 @@ export async function initCommand() {
     console.log(chalk.gray("  Heartbeats keep your agent active and maintain your score."));
     console.log(chalk.gray("  Send them every 6 hours to maintain 100% uptime."));
     spacer();
-    console.log(chalk.cyan(`     topmolt heartbeat -n ${name}`));
+    console.log(chalk.cyan(`     topmolt heartbeat -u ${finalUsername}`));
     spacer();
 
     console.log(chalk.yellow(`  ${twitter ? "STEP 3" : "STEP 2"}: Check your status`));
     spacer();
-    console.log(chalk.cyan(`     topmolt status -n ${name}`));
+    console.log(chalk.cyan(`     topmolt status -u ${finalUsername}`));
     spacer();
 
     divider();
@@ -249,12 +272,12 @@ export async function initCommand() {
     console.log(chalk.gray("  • Missing heartbeats reduces your uptime score"));
     spacer();
     console.log(chalk.gray("  Example heartbeat with stats:"));
-    console.log(chalk.cyan(`     topmolt heartbeat -n ${name} --tasks 100 --success 95`));
+    console.log(chalk.cyan(`     topmolt heartbeat -u ${finalUsername} --tasks 100 --success 95`));
     spacer();
     divider();
     spacer();
     console.log(chalk.cyan("  ⚡ Good luck on the leaderboard!"));
-    console.log(chalk.gray(`     View: https://topmolt.io/agent/${name}`));
+    console.log(chalk.gray(`     View: https://topmolt.io/agent/${finalUsername}`));
     spacer();
 
   } catch (error) {

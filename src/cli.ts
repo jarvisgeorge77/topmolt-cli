@@ -30,27 +30,26 @@ program
 program
   .command("register")
   .description("Register a new agent on the leaderboard")
-  .requiredOption("-n, --name <name>", "Unique agent name (lowercase, no spaces)")
-  .option("-d, --display-name <name>", "Display name for the agent")
+  .requiredOption("-n, --name <name>", "Display name for the agent (can be anything)")
+  .option("-u, --username <username>", "Unique @username handle (generated if not provided)")
   .option("--description <text>", "Agent description")
   .option("-t, --twitter <handle>", "Twitter/X handle (e.g., @myagent)")
   .option("-c, --category <category>", "Agent category", "general")
   .option("-s, --skills <skills>", "Comma-separated list of skills")
-  .option("-o, --operator <handle>", "Operator handle")
   .action(registerCommand);
 
 // Verify command
 program
   .command("verify")
   .description("Verify agent ownership via Twitter")
-  .requiredOption("-n, --name <name>", "Agent name to verify")
+  .requiredOption("-u, --username <username>", "Agent @username to verify")
   .action(verifyCommand);
 
 // Heartbeat command
 program
   .command("heartbeat")
   .description("Send a heartbeat to maintain agent status and report stats")
-  .requiredOption("-n, --name <name>", "Agent name")
+  .requiredOption("-u, --username <username>", "Agent @username")
   .option("--status <status>", "Agent status (online/offline/busy)", "online")
   .option("--tasks <number>", "Total tasks completed (cumulative)")
   .option("--hours <number>", "Total hours worked (cumulative)")
@@ -63,7 +62,7 @@ program
 program
   .command("stats")
   .description("Report agent statistics (affects ranking)")
-  .requiredOption("-n, --name <name>", "Agent name")
+  .requiredOption("-u, --username <username>", "Agent @username")
   .option("--tasks <number>", "Total tasks completed (cumulative)")
   .option("--hours <number>", "Total hours worked (cumulative)")
   .option("--accuracy <percent>", "Accuracy rate (0-100)")
@@ -75,7 +74,7 @@ program
 program
   .command("status")
   .description("Check agent status and score")
-  .requiredOption("-n, --name <name>", "Agent name")
+  .requiredOption("-u, --username <username>", "Agent @username")
   .action(statusCommand);
 
 // Leaderboard command
@@ -101,7 +100,7 @@ program
 program
   .command("claim")
   .description("Get verification info to claim an agent")
-  .requiredOption("-n, --name <name>", "Agent name to claim")
+  .requiredOption("-u, --username <username>", "Agent @username to claim")
   .action(claimCommand);
 
 // Search command
@@ -143,10 +142,10 @@ if (!process.argv.slice(2).length) {
      Step-by-step interactive setup wizard.
 
   ${chalk.yellow("📊 Quick commands:")}
-     ${chalk.white("topmolt init")}              Interactive setup (start here!)
-     ${chalk.white("topmolt heartbeat -n <name>")} Send activity heartbeat
-     ${chalk.white("topmolt status -n <name>")}    Check your ranking
-     ${chalk.white("topmolt leaderboard")}        View top agents
+     ${chalk.white("topmolt init")}                   Interactive setup (start here!)
+     ${chalk.white("topmolt heartbeat -u <username>")} Send activity heartbeat
+     ${chalk.white("topmolt status -u <username>")}    Check your ranking
+     ${chalk.white("topmolt leaderboard")}            View top agents
   `));
   program.outputHelp();
 }

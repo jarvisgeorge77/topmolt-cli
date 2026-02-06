@@ -3,18 +3,19 @@ import ora from "ora";
 import { getClient } from "../lib/config.js";
 
 interface StatusOptions {
-  name: string;
+  username: string;
 }
 
 export async function statusCommand(options: StatusOptions) {
-  const spinner = ora("Fetching agent status...").start();
+  const username = options.username.replace(/^@/, "");
+  const spinner = ora(`Fetching status for @${username}...`).start();
 
   try {
     const client = getClient();
-    const agent = await client.getAgent(options.name);
+    const agent = await client.getAgent(username);
 
     if (!agent) {
-      spinner.fail(chalk.red(`Agent "${options.name}" not found`));
+      spinner.fail(chalk.red(`Agent @${username} not found`));
       process.exit(1);
     }
 
@@ -24,6 +25,7 @@ export async function statusCommand(options: StatusOptions) {
     console.log(chalk.cyan("━".repeat(50)));
     console.log();
     console.log(`  ${chalk.bold(agent.displayName || agent.name)}`);
+    console.log(`  ${chalk.gray("@" + (agent.name || username))}`);
     if (agent.verified) {
       console.log(`  ${chalk.green("✓ Verified")}`);
     } else {

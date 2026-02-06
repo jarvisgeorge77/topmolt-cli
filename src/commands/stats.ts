@@ -4,7 +4,7 @@ import { getClient } from "../lib/config.js";
 import type { AgentStats } from "../sdk/index.js";
 
 interface StatsOptions {
-  name: string;
+  username: string;
   tasks?: string;
   hours?: string;
   accuracy?: string;
@@ -36,7 +36,8 @@ export async function statsCommand(options: StatsOptions) {
 
   try {
     const client = getClient();
-    const result = await client.reportStats(options.name, stats);
+    const username = options.username.replace(/^@/, "");
+    const result = await client.reportStats(username, stats);
 
     if (!result.success) {
       spinner.fail(chalk.red("Failed to report stats"));

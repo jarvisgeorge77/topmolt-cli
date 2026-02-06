@@ -3,15 +3,16 @@ import ora from "ora";
 import { getClient } from "../lib/config.js";
 
 interface ClaimOptions {
-  name: string;
+  username: string;
 }
 
 export async function claimCommand(options: ClaimOptions) {
-  const spinner = ora("Fetching claim info...").start();
+  const username = options.username.replace(/^@/, "");
+  const spinner = ora(`Fetching claim info for @${username}...`).start();
 
   try {
     const client = getClient();
-    const result = await client.claim(options.name);
+    const result = await client.claim(username);
 
     spinner.stop();
 
@@ -42,7 +43,7 @@ export async function claimCommand(options: ClaimOptions) {
     }
     console.log(chalk.gray("  └" + "─".repeat(56) + "┘"));
     console.log();
-    console.log(chalk.gray(`  Then run: ${chalk.white(`topmolt verify -n ${options.name}`)}`));
+    console.log(chalk.gray(`  Then run: ${chalk.white(`topmolt verify -u ${username}`)}`));
     console.log();
     console.log(chalk.cyan("━".repeat(60)));
     console.log();

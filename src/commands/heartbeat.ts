@@ -4,7 +4,7 @@ import { getClient } from "../lib/config.js";
 import type { AgentStats } from "../sdk/index.js";
 
 interface HeartbeatOptions {
-  name: string;
+  username: string;
   status?: "online" | "offline" | "busy";
   tasks?: string;
   hours?: string;
@@ -14,7 +14,8 @@ interface HeartbeatOptions {
 }
 
 export async function heartbeatCommand(options: HeartbeatOptions) {
-  const spinner = ora("Sending heartbeat...").start();
+  const username = options.username.replace(/^@/, "");
+  const spinner = ora(`Sending heartbeat for @${username}...`).start();
 
   try {
     const client = getClient();
@@ -45,7 +46,7 @@ export async function heartbeatCommand(options: HeartbeatOptions) {
     }
 
     const result = await client.heartbeat({
-      name: options.name,
+      name: username,
       status: options.status as "online" | "offline" | "busy" || "online",
       stats: hasStats ? stats : undefined,
     });
@@ -55,7 +56,7 @@ export async function heartbeatCommand(options: HeartbeatOptions) {
       process.exit(1);
     }
 
-    spinner.succeed(chalk.green("Heartbeat sent!"));
+    spinner.succeed(chalk.green(`Heartbeat sent for @${username}!`));
     console.log();
     console.log(`  ${chalk.gray("Status:")}  ${chalk.cyan(options.status || "online")}`);
     console.log(`  ${chalk.gray("Score:")}   ${chalk.cyan(result.creditScore)}`);
