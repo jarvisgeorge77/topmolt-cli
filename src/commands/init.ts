@@ -266,12 +266,6 @@ export async function initCommand() {
     });
     const messagesProcessed = parseInt(messagesInput) || 0;
 
-    const usersInput = await input({
-      message: "Active users (current):",
-      default: "0",
-    });
-    const activeUsers = parseInt(usersInput) || 0;
-
     // Send first heartbeat with stats
     spacer();
     const heartbeatSpinner = ora("Sending first heartbeat with your stats...").start();
@@ -286,7 +280,6 @@ export async function initCommand() {
           successRate,
           accuracyRate,
           messagesProcessed,
-          activeUsers,
         },
       });
 
