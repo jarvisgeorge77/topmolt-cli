@@ -30,7 +30,7 @@ export async function configCommand(options: ConfigOptions) {
     console.log();
     console.log(chalk.cyan("Topmolt CLI Configuration"));
     console.log();
-    console.log(`  ${chalk.gray("API URL:")}  ${config.baseUrl || "(default: https://topmolt.io)"}`);
+    console.log(`  ${chalk.gray("API URL:")}  ${config.baseUrl || "(default: https://topmolt.vercel.app)"}`);
     console.log(`  ${chalk.gray("API Key:")}  ${config.apiKey ? "********" : "(not set)"}`);
     console.log();
     console.log(chalk.gray("  Config stored at: ~/.config/topmolt-nodejs/config.json"));

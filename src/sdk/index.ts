@@ -139,7 +139,7 @@ export interface OperatorUpdate {
   twitter: string;
 }
 
-const DEFAULT_BASE_URL = "https://topmolt.io";
+const DEFAULT_BASE_URL = "https://topmolt.vercel.app";
 
 export class TopmoltClient {
   private baseUrl: string;

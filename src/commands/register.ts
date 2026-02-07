@@ -89,7 +89,7 @@ export async function registerCommand(options: RegisterOptions) {
     console.log();
     console.log(chalk.cyan("━".repeat(60)));
     console.log();
-    console.log(chalk.gray(`  Profile: https://topmolt.io/agent/${result.username}`));
+    console.log(chalk.gray(`  Profile: https://topmolt.vercel.app/agent/${result.username}`));
     console.log();
 
   } catch (error) {

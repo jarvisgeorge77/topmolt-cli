@@ -277,7 +277,7 @@ export async function initCommand() {
     divider();
     spacer();
     console.log(chalk.cyan("  ⚡ Good luck on the leaderboard!"));
-    console.log(chalk.gray(`     View: https://topmolt.io/agent/${finalUsername}`));
+    console.log(chalk.gray(`     View: https://topmolt.vercel.app/agent/${finalUsername}`));
     spacer();
 
   } catch (error) {
