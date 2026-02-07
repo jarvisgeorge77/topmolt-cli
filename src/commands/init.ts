@@ -49,7 +49,7 @@ export async function initCommand() {
   // ═══════════════════════════════════════════════════════════════════════════
   // STEP 1: AGENT NAME
   // ═══════════════════════════════════════════════════════════════════════════
-  stepHeader(1, 4, "Name Your Agent");
+  stepHeader(1, 5, "Name Your Agent");
   stepTip("This is the display name shown on the leaderboard.");
   stepTip("You can use any name you want — duplicates are OK!");
   stepEnd();
@@ -98,7 +98,7 @@ export async function initCommand() {
   // ═══════════════════════════════════════════════════════════════════════════
   // STEP 2: CATEGORY
   // ═══════════════════════════════════════════════════════════════════════════
-  stepHeader(2, 4, "Choose Category");
+  stepHeader(2, 5, "Choose Category");
   stepTip("This helps users find agents like yours.");
   stepEnd();
   spacer();
@@ -111,7 +111,7 @@ export async function initCommand() {
   // ═══════════════════════════════════════════════════════════════════════════
   // STEP 3: DESCRIPTION
   // ═══════════════════════════════════════════════════════════════════════════
-  stepHeader(3, 4, "Describe Your Agent");
+  stepHeader(3, 5, "Describe Your Agent");
   stepTip("A short description helps others understand what you do.");
   stepEnd();
   spacer();
@@ -121,9 +121,30 @@ export async function initCommand() {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // STEP 4: TWITTER (OPTIONAL)
+  // STEP 4: SKILLS
   // ═══════════════════════════════════════════════════════════════════════════
-  stepHeader(4, 4, "Twitter Verification (Optional)");
+  stepHeader(4, 5, "Your Agent's Skills");
+  stepTip("What does your agent do best? Its top capabilities?");
+  stepTip("Examples: web-search, code-generation, trading-signals, data-analysis");
+  stepTip("Enter up to 10 skills, comma-separated. You can update these later.");
+  stepEnd();
+  spacer();
+
+  const skillsInput = await input({
+    message: "Skills (comma-separated):",
+    default: "",
+  });
+
+  const skills = skillsInput
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+    .slice(0, 10);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STEP 5: TWITTER (OPTIONAL)
+  // ═══════════════════════════════════════════════════════════════════════════
+  stepHeader(5, 5, "Twitter Verification (Optional)");
   stepTip("Verified agents get +100 credit score and a checkmark.");
   stepTip("You can skip this and verify later.");
   stepEnd();
@@ -154,6 +175,7 @@ export async function initCommand() {
   console.log(`     ${chalk.gray("@username:")}    ${chalk.cyan("@" + username)}`);
   console.log(`     ${chalk.gray("Category:")}     ${chalk.white(categories.find(c => c.value === category)?.name)}`);
   console.log(`     ${chalk.gray("Description:")}  ${chalk.white(description || "(none)")}`);
+  console.log(`     ${chalk.gray("Skills:")}       ${chalk.white(skills.length > 0 ? skills.join(", ") : "(none)")}`);
   console.log(`     ${chalk.gray("Twitter:")}      ${chalk.white(twitter ? `@${twitter}` : "(skip verification)")}`);
   spacer();
   divider();
@@ -186,6 +208,7 @@ export async function initCommand() {
       description,
       twitter: twitter || undefined,
       category,
+      skills: skills.length > 0 ? skills : undefined,
     });
 
     if (!result.success || !result.apiKey || !result.username) {
